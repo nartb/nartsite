@@ -1,3 +1,56 @@
 @use "./variables.scss" as *;
 
 // put your custom CSS here!
+
+// Define custom fonts
+@font-face {
+    font-family: "Neuething Sans Title";
+    font-display: swap;
+    font-style: normal;
+    src: url("/static/fonts/neuething/NeuethingSans-ExtraBoldUltraExpanded.woff2") format("woff2");
+}
+@font-face {
+    font-family: "Neuething Sans Header";
+    font-display: swap;
+    font-style: normal;
+    src: url("/static/fonts/neuething/NeuethingSans-BoldExtraExpanded.woff2") format("woff2");
+}
+
+// Adjust font sizes
+.page-title {
+    font-family: "Neuething Sans Title";
+    font-size: 35px;
+}
+
+h1 {
+    font-size: 20px;
+
+    &.article-title {
+        font-size: 30px;
+    }
+}
+
+// Hide note property counter
+.note-properties-count {
+    display: none;
+}
+
+// Make note meta info and note properties header lighter, matching dates on recent notes
+.content-meta, .note-properties-header {
+    opacity: 0.6;
+}
+
+// Make table header font smaller
+.table-container thead {
+    font-size: 16px;
+}
+
+// Hide explorer toggle on desktop
+.explorer-toggle.desktop-explorer {
+    display: none;
+}
+
+// Hide the divider between the page content and the footer
+.center > hr {
+    display: none;
+}
