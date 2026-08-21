@@ -1,17 +1,13 @@
-# Quartz v5
+# nartsite
 
-> “[One] who works with the door open gets all kinds of interruptions, but [they] also occasionally gets clues as to what the world is and what might be important.” — Richard Hamming
+Personal site, built with [Quartz](https://quartz.jzhao.xyz).
 
-Quartz is a set of tools that helps you publish your [digital garden](https://jzhao.xyz/posts/networked-thought) and notes as a website for free.
+Content lives outside this repo — `content/` is a symlink into a local vault and is
+gitignored, so clones will not include notes.
 
-🔗 Read the documentation and get started: https://quartz.jzhao.xyz/
+## Usage
 
-[Join the Discord Community](https://discord.gg/cRFFHYye7t)
-
-## Sponsors
-
-<p align="center">
-  <a href="https://github.com/sponsors/jackyzha0">
-    <img src="https://cdn.jsdelivr.net/gh/jackyzha0/jackyzha0/sponsorkit/sponsors.svg" />
-  </a>
-</p>
+```bash
+npx quartz build --serve   # local preview
+npx quartz upgrade         # pull upstream Quartz updates
+```
