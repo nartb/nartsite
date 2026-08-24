@@ -36,7 +36,10 @@ h1 {
 }
 
 // Make note meta info and note properties header lighter, matching dates on recent notes
-.content-meta, .note-properties-header {
+// - note meta info
+// - note properties header
+// - folder/tag page copy for number of items
+.content-meta, .note-properties-header, .page-listing > p {
     opacity: 0.6;
 }
 
