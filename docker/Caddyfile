@@ -1,0 +1,83 @@
+# ---------------------------------------------------------------------------
+# nartsite — static file server for the built Quartz site
+# ---------------------------------------------------------------------------
+# Caddy is deliberately dumb here: it serves whatever is in /site and knows
+# nothing about Quartz, the vault, or builds. That separation is what keeps
+# redeploys seamless — rebuilding or restarting the quartz container never
+# touches this one, and /site is only ever swapped out in one go.
+# ---------------------------------------------------------------------------
+
+{
+	# No admin API. Nothing needs to reconfigure Caddy at runtime, and leaving
+	# the endpoint off means one less thing listening inside the container.
+	admin off
+
+	# Certificates and HTTPS are handled upstream by the Cloudflare tunnel, so
+	# this server only ever speaks plain HTTP on the internal network. Without
+	# this, Caddy would try to provision its own certificates and fail.
+	auto_https off
+}
+
+:{$INTERNAL_SITE_PORT} {
+	# The volume the quartz container publishes into.
+	root * {$QUARTZ_SERVE_DIR}
+
+	# Compress on the fly. The site is mostly HTML/CSS/JS, which compresses
+	# well; zstd is preferred when the client supports it, gzip otherwise.
+	encode zstd gzip
+
+	# --- Caching ------------------------------------------------------------
+	# Header directives run in the order written, and later matches overwrite
+	# earlier ones. So this sets a safe default for everything first, and the
+	# two rules below carve out the exceptions.
+	#
+	# Default: revalidate on every request. Any page can change the moment
+	# something is edited in Obsidian, and that includes the unhashed JSON
+	# under /static (contentIndex.json, which search reads).
+	header Cache-Control "public, max-age=0, must-revalidate"
+
+	# Quartz content-hashes its bundles — component-1ea6ad18.css,
+	# resource-after-5eb75950.js and friends. The filename changes whenever the
+	# contents do, so these can be cached indefinitely.
+	@immutable path_regexp -[0-9a-f]{8}\.(css|js)$
+	header @immutable Cache-Control "public, max-age=31536000, immutable"
+
+	# Self-hosted font files (quartz.config.yaml sets fontOrigin: local). Not
+	# hashed, but they only change when the typography config does.
+	@fonts path /static/fonts/*
+	header @fonts Cache-Control "public, max-age=31536000, immutable"
+
+	# --- URL shape ----------------------------------------------------------
+	# Quartz emits a mix of two layouts and links to both without extensions:
+	#
+	#   /beep          -> beep.html            (a regular note)
+	#   /recipes/      -> recipes/index.html   (a folder page)
+	#   /tags/art      -> tags/art.html        (a tag page)
+	#
+	# The dev server handles this with serve-handler's clean-URL support; here
+	# try_files does the same job. Order matters — an exact file wins, then the
+	# .html sibling, then a directory index.
+	try_files {path} {path}.html {path}/index.html
+
+	file_server
+
+	# --- Errors -------------------------------------------------------------
+	# Serve Quartz's own 404 page for missing paths, preserving the 404 status
+	# rather than redirecting. Anything that is not a 404 (a permissions
+	# problem, say) falls through to a plain text response instead of being
+	# disguised as a missing page.
+	handle_errors {
+		@404 expression {err.status_code} == 404
+		handle @404 {
+			rewrite * /404.html
+			file_server
+		}
+		respond "{err.status_code} {err.status_text}"
+	}
+
+	# Access logs to stdout so `docker logs` and Komodo pick them up.
+	log {
+		output stdout
+		format console
+	}
+}

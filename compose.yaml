@@ -1,0 +1,96 @@
+# ---------------------------------------------------------------------------
+# nartsite stack
+# ---------------------------------------------------------------------------
+# Two services and three volumes:
+#
+#   obsidian-sync (separate stack)          this stack
+#   ─────────────────────────────           ───────────────────────────────
+#   pulls the vault ──> [vault volume] ──> quartz  (build --watch)
+#                                                      │
+#                                                 [site volume]
+#                                                      │
+#                                                    caddy   (file server)
+#                                                      │
+#                                              cloudflare tunnel ──> nartb.com
+#
+# The vault volume is owned by the obsidian-sync stack and mounted read-only
+# here. The site volume is written only by quartz and read only by caddy.
+#
+# Configuration comes from .env (see .env.example) — or from the environment
+# variables set on the stack in Komodo.
+# ---------------------------------------------------------------------------
+
+services:
+  # The builder. Watches the vault and regenerates the site; serves nothing.
+  quartz:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: ${QUARTZ_IMAGE}
+    # Restart on crash and on host reboot, but stay down if it was stopped
+    # deliberately.
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      # Read-only: this stack is a consumer of the vault, never a writer. If
+      # quartz ever tried to write back, obsidian-sync would push the result.
+      - ${VAULT_VOLUME}:${QUARTZ_CONTENT_DIR}:ro
+      - ${SERVE_VOLUME}:${QUARTZ_SERVE_DIR}
+    # /build is rebuilt from scratch on every container start, so it never
+    # needs to survive a restart. Uncomment to keep it in RAM instead of on
+    # the container's writable layer — faster builds, at the cost of holding
+    # the whole rendered site (images included) in memory.
+    # tmpfs:
+    #   - /build
+
+  # The web server. Knows nothing about Quartz — it just serves /site.
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    # Ordering only, not readiness. Caddy starting before the first build
+    # finishes is fine: /site still holds the previous deploy, and on a truly
+    # first-time deploy it briefly 404s until quartz publishes.
+    depends_on:
+      - quartz
+    env_file: .env
+    volumes:
+      - ./docker/Caddyfile:/etc/caddy/Caddyfile:ro
+      # Read-only: caddy has no business writing into the built site.
+      - ${SERVE_VOLUME}:${QUARTZ_SERVE_DIR}:ro
+      # Caddy's own state. Mostly idle here since TLS is terminated upstream,
+      # but keeping them as volumes avoids writes to the container layer.
+      - caddy-data:/data
+      - caddy-config:/config
+    ports:
+      # Published for the Cloudflare tunnel to reach. If cloudflared runs in
+      # its own stack, prefer the shared-network approach below and drop this
+      # so the site is never exposed on the host directly.
+      - "${EXTERNAL_SITE_PORT}:${INTERNAL_SITE_PORT}"
+    # networks:
+    #   - default
+    #   - tunnel
+
+volumes:
+  # Written by the obsidian-headless-sync stack. `external: true` means compose
+  # expects it to already exist and will refuse to start rather than silently
+  # creating an empty one — which would otherwise look like a vault that lost
+  # all its notes.
+  vault:
+    external: true
+    name: ${VAULT_VOLUME}
+
+  # The built site: quartz writes, caddy reads. Persisting it across restarts
+  # is what keeps the old deploy online while a new build runs.
+  serve:
+    name: ${SERVE_VOLUME}
+
+  # Caddy's certificate/state directories.
+  caddy-data:
+  caddy-config:
+
+# Uncomment together with the caddy `networks` block above to let cloudflared
+# reach http://caddy:80 over a shared network instead of via a published port.
+# networks:
+#   tunnel:
+#     external: true
+#     name: cloudflared
