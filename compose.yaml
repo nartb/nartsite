@@ -14,10 +14,9 @@
 #                                              cloudflare tunnel ──> nartb.com
 #
 # The vault volume is owned by the obsidian-sync stack and mounted read-only
-# here. The site volume is written only by quartz and read only by caddy.
+# here. The serve volume is written only by quartz and read only by caddy.
 #
-# Configuration comes from .env (see .env.example) — or from the environment
-# variables set on the stack in Komodo.
+# Configuration comes from .env (see .env.example)
 # ---------------------------------------------------------------------------
 
 services:
@@ -34,7 +33,7 @@ services:
     volumes:
       # Read-only: this stack is a consumer of the vault, never a writer. If
       # quartz ever tried to write back, obsidian-sync would push the result.
-      - ${VAULT_VOLUME}:${QUARTZ_CONTENT_DIR}:ro
+      - ${VAULT_CONTENT_DIR}:${QUARTZ_CONTENT_DIR}:ro
       - ${SERVE_VOLUME}:${QUARTZ_SERVE_DIR}
     # /build is rebuilt from scratch on every container start, so it never
     # needs to survive a restart. Uncomment to keep it in RAM instead of on
@@ -71,14 +70,6 @@ services:
     #   - tunnel
 
 volumes:
-  # Written by the obsidian-headless-sync stack. `external: true` means compose
-  # expects it to already exist and will refuse to start rather than silently
-  # creating an empty one — which would otherwise look like a vault that lost
-  # all its notes.
-  vault:
-    external: true
-    name: ${VAULT_VOLUME}
-
   # The built site: quartz writes, caddy reads. Persisting it across restarts
   # is what keeps the old deploy online while a new build runs.
   serve:
