@@ -65,9 +65,8 @@ services:
       # its own stack, prefer the shared-network approach below and drop this
       # so the site is never exposed on the host directly.
       - "${EXTERNAL_SITE_PORT}:${INTERNAL_SITE_PORT}"
-    # networks:
-    #   - default
-    #   - tunnel
+    networks:
+      - cloudflare-tunnel-net
 
 volumes:
   # The built site: quartz writes, caddy reads. Persisting it across restarts
@@ -79,9 +78,7 @@ volumes:
   caddy-data:
   caddy-config:
 
-# Uncomment together with the caddy `networks` block above to let cloudflared
-# reach http://caddy:80 over a shared network instead of via a published port.
-# networks:
-#   tunnel:
-#     external: true
-#     name: cloudflared
+networks:
+  cloudflare-tunnel-net:
+    name: ${CLOUDFLARE_TUNNEL_NETWORK}
+    external: true
