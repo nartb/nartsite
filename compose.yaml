@@ -61,11 +61,6 @@ services:
       # but keeping them as volumes avoids writes to the container layer.
       - caddy-data:/data
       - caddy-config:/config
-    ports:
-      # Published for the Cloudflare tunnel to reach. If cloudflared runs in
-      # its own stack, prefer the shared-network approach below and drop this
-      # so the site is never exposed on the host directly.
-      - "${EXTERNAL_SITE_PORT}:${INTERNAL_SITE_PORT}"
     networks:
       - cloudflare-tunnel-net
 

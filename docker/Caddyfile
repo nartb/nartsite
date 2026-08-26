@@ -18,7 +18,7 @@
 	auto_https off
 }
 
-:{$INTERNAL_SITE_PORT} {
+:{$SITE_PORT} {
 	# The volume the quartz container publishes into.
 	root * {$QUARTZ_SERVE_DIR}
 
