@@ -48,7 +48,7 @@ services:
     container_name: ${CADDY_CONTAINER_NAME}
     restart: unless-stopped
     # Ordering only, not readiness. Caddy starting before the first build
-    # finishes is fine: /site still holds the previous deploy, and on a truly
+    # finishes is fine: SERVE_DIR still holds the previous deploy, and on a truly
     # first-time deploy it briefly 404s until quartz publishes.
     depends_on:
       - quartz
