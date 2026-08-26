@@ -69,8 +69,7 @@ RUN chmod +x /usr/local/bin/entrypoint.sh
 # Healthy once a build has actually been published. The long start period
 # covers the initial cold build, which walks the whole vault and resizes
 # images — considerably slower than an incremental rebuild.
-# /site must match SERVE_DIR in entrypoint.sh.
 HEALTHCHECK --interval=30s --timeout=5s --start-period=180s --retries=3 \
-  CMD test -s /site/index.html || exit 1
+  CMD test -s "${SERVE_DIR}/index.html" || exit 1
 
 ENTRYPOINT ["/usr/bin/tini", "--", "/usr/local/bin/entrypoint.sh"]

@@ -1,10 +1,10 @@
 # ---------------------------------------------------------------------------
 # nartsite — static file server for the built Quartz site
 # ---------------------------------------------------------------------------
-# Caddy is deliberately dumb here: it serves whatever is in /site and knows
+# Caddy is deliberately dumb here: it serves whatever is in SERVE_DIR and knows
 # nothing about Quartz, the vault, or builds. That separation is what keeps
 # redeploys seamless — rebuilding or restarting the quartz container never
-# touches this one, and /site is only ever swapped out in one go.
+# touches this one, and SERVE_DIR is only ever swapped out in one go.
 # ---------------------------------------------------------------------------
 
 {
