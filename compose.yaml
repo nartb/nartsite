@@ -45,6 +45,7 @@ services:
   # The web server. Knows nothing about Quartz — it just serves /site.
   caddy:
     image: caddy:2-alpine
+    container_name: ${CADDY_CONTAINER_NAME}
     restart: unless-stopped
     # Ordering only, not readiness. Caddy starting before the first build
     # finishes is fine: /site still holds the previous deploy, and on a truly
