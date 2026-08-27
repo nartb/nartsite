@@ -48,6 +48,20 @@ h1 {
     font-size: 16px;
 }
 
+// Add border around table and vertical lines between columns
+.table-container > table {
+    border: 2px solid var(--gray);
+
+    th,
+    td {
+        border-right: 1px solid var(--gray);
+
+        &:last-child {
+            border-right: none;
+        }
+    }
+}
+
 // Hide explorer toggle on desktop
 .explorer-toggle.desktop-explorer {
     display: none;
