@@ -240,6 +240,7 @@ plugins:
   - source: "@quartz-community/recent-notes"
     enabled: true
     options:
+      title: recent
       showTags: false # displays as a bullet list which doesn't look great
       hideFolderPages: true
       hideTagPages: true
