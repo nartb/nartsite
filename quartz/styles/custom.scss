@@ -71,3 +71,51 @@ h1 {
 .center > hr {
     display: none;
 }
+
+// Lucide icons
+// Some upstream plugins ship their own icon shapes. Redraw them as CSS masks so
+// the whole site uses lucide, without patching anything in node_modules.
+@mixin lucide-icon($svg, $color: currentColor) {
+    background-color: $color;
+    -webkit-mask-image: url($svg);
+    mask-image: url($svg);
+    -webkit-mask-size: contain;
+    mask-size: contain;
+    -webkit-mask-repeat: no-repeat;
+    mask-repeat: no-repeat;
+    -webkit-mask-position: center;
+    mask-position: center;
+}
+
+// lucide "external-link", replacing the crawl-links plugin icon
+a.external .external-icon {
+    height: 0.85em;
+    width: 0.85em;
+    margin: 0 0.15em;
+    vertical-align: -0.05em;
+
+    @include lucide-icon(
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='M15 3h6v6'/%3E%3Cpath d='M10 14 21 3'/%3E%3Cpath d='M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6'/%3E%3C/svg%3E",
+        var(--dark)
+    );
+
+    > path {
+        display: none;
+    }
+}
+
+// lucide "search", replacing the search plugin icon
+.search > .search-button > svg {
+    width: 18px;
+    min-width: 18px;
+    height: 18px;
+
+    @include lucide-icon(
+        "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23000' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m21 21-4.34-4.34'/%3E%3Ccircle cx='11' cy='11' r='8'/%3E%3C/svg%3E",
+        var(--darkgray)
+    );
+
+    > .search-path {
+        display: none;
+    }
+}
