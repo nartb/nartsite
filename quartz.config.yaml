@@ -240,7 +240,7 @@ plugins:
   - source: "@quartz-community/recent-notes"
     enabled: true
     options:
-      - showTags: false # displays as a bullet list which doesn't look great
+      showTags: false # displays as a bullet list which doesn't look great
     layout:
       position: right
   - source: "@quartz-community/spacer"
