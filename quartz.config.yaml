@@ -241,6 +241,9 @@ plugins:
     enabled: true
     options:
       showTags: false # displays as a bullet list which doesn't look great
+      hideFolderPages: true
+      hideTagPages: true
+      limit: 5
     layout:
       position: right
   - source: "@quartz-community/spacer"
