@@ -257,7 +257,6 @@ plugins:
       display: mobile-only
   - source: "@quartz-community/bases-page"
     enabled: true
-    options: {}
     order: 50
   - source: "@quartz-community/note-properties"
     enabled: true
