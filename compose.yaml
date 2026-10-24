@@ -26,7 +26,7 @@ services:
       context: .
       dockerfile: Dockerfile
     image: ${QUARTZ_IMAGE}
-    label:
+    labels:
       backup.keep_running: "true"
     # Restart on crash and on host reboot, but stay down if it was stopped
     # deliberately.
@@ -47,7 +47,7 @@ services:
   # The web server. Knows nothing about Quartz — it just serves the site.
   caddy:
     image: caddy:2-alpine
-    label:
+    labels:
       backup.keep_running: "true"
     container_name: ${CADDY_CONTAINER_NAME}
     restart: unless-stopped
